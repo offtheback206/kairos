@@ -5,8 +5,9 @@ export interface Task {
   name: string;
   durationMinutes: number;
   status: "pending" | "active" | "completed";
-  plannedDate: string | null; // ISO date string (YYYY-MM-DD)
-  completedDate: string | null; // ISO date string (YYYY-MM-DD)
+  plannedDate: string | null;
+  completedDate: string | null;
+  actualMinutes: number | null; // actual time spent
 }
 
 export interface TimerState {
@@ -77,8 +78,10 @@ export function useTasks() {
   useEffect(() => {
     if (timer.isComplete && timer.taskId) {
       const today = new Date().toISOString().split("T")[0];
+      const elapsedSeconds = timer.totalSeconds - timer.remainingSeconds;
+      const actualMin = Math.round(elapsedSeconds / 60);
       setTasks((prev) =>
-        prev.map((t) => (t.id === timer.taskId ? { ...t, status: "completed", completedDate: today } : t))
+        prev.map((t) => (t.id === timer.taskId ? { ...t, status: "completed", completedDate: today, actualMinutes: actualMin } : t))
       );
     }
   }, [timer.isComplete, timer.taskId]);
@@ -91,6 +94,7 @@ export function useTasks() {
       status: "pending",
       plannedDate,
       completedDate: null,
+      actualMinutes: null,
     };
     setTasks((prev) => [...prev, newTask]);
   }, []);
@@ -135,7 +139,7 @@ export function useTasks() {
   }, []);
 
   const resetTask = useCallback((id: string) => {
-    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status: "pending" as const, completedDate: null } : t)));
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status: "pending" as const, completedDate: null, actualMinutes: null } : t)));
   }, []);
 
   return { tasks, timer, addTask, deleteTask, startTask, togglePause, dismissTimer, reorderTasks, resetTask };
