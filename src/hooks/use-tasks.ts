@@ -117,5 +117,17 @@ export function useTasks() {
     setTimer({ taskId: null, remainingSeconds: 0, totalSeconds: 0, isPaused: false, isComplete: false });
   }, []);
 
-  return { tasks, timer, addTask, deleteTask, startTask, togglePause, dismissTimer };
+  const reorderTasks = useCallback((activeId: string, overId: string) => {
+    setTasks((prev) => {
+      const oldIndex = prev.findIndex((t) => t.id === activeId);
+      const newIndex = prev.findIndex((t) => t.id === overId);
+      if (oldIndex === -1 || newIndex === -1) return prev;
+      const next = [...prev];
+      const [moved] = next.splice(oldIndex, 1);
+      next.splice(newIndex, 0, moved);
+      return next;
+    });
+  }, []);
+
+  return { tasks, timer, addTask, deleteTask, startTask, togglePause, dismissTimer, reorderTasks };
 }
