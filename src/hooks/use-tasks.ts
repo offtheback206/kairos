@@ -158,9 +158,24 @@ export function useTasks() {
     });
   }, []);
 
-  const resetTask = useCallback((id: string) => {
-    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status: "pending" as const, completedDate: null, actualMinutes: null, overtimeSeconds: null } : t)));
+  const duplicateTask = useCallback((id: string, plannedDate: string) => {
+    setTasks((prev) => {
+      const source = prev.find((t) => t.id === id);
+      if (!source) return prev;
+      const dup: Task = {
+        id: crypto.randomUUID(),
+        name: source.name,
+        durationMinutes: source.durationMinutes,
+        status: "pending",
+        plannedDate,
+        completedDate: null,
+        actualMinutes: null,
+        notes: source.notes,
+        overtimeSeconds: null,
+      };
+      return [...prev, dup];
+    });
   }, []);
 
-  return { tasks, timer, addTask, deleteTask, startTask, togglePause, dismissTimer, reorderTasks, resetTask, completeTask };
+  return { tasks, timer, addTask, deleteTask, startTask, togglePause, dismissTimer, reorderTasks, duplicateTask, completeTask };
 }
