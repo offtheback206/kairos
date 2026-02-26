@@ -84,7 +84,7 @@ export function TimerDisplay({ timer, task, onTogglePause, onDismiss }: TimerDis
       </div>
 
       {/* Task name */}
-      <p className="text-lg font-semibold text-foreground mb-4 truncate max-w-sm animate-fade-in">{task?.name}</p>
+      <p className="text-3xl font-bold text-foreground mb-5 truncate max-w-lg animate-fade-in tracking-tight">{task?.name}</p>
 
       {/* Controls */}
       <div className="flex gap-2">
