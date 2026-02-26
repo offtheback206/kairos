@@ -152,14 +152,16 @@ function SortableTask({
         </Button>
       )}
 
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 rounded-sm text-muted-foreground hover:text-destructive"
-        onClick={() => onDelete(task.id)}
-      >
-        <Trash2 size={14} strokeWidth={1.5} />
-      </Button>
+      {task.status === "pending" && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 rounded-sm text-muted-foreground hover:text-destructive"
+          onClick={() => onDelete(task.id)}
+        >
+          <Trash2 size={14} strokeWidth={1.5} />
+        </Button>
+      )}
     </div>
   );
 }
