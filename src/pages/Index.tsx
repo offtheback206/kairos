@@ -2,10 +2,12 @@ import { useTasks } from "@/hooks/use-tasks";
 import { TaskForm } from "@/components/TaskForm";
 import { TaskList } from "@/components/TaskList";
 import { TimerDisplay } from "@/components/TimerDisplay";
+import { Analytics } from "@/components/Analytics";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import kairosLogo from "@/assets/Kairos.png";
 
 const Index = () => {
-  const { tasks, timer, addTask, deleteTask, startTask, togglePause, dismissTimer, reorderTasks, resetTask } = useTasks();
+  const { tasks, timer, addTask, deleteTask, startTask, togglePause, dismissTimer, reorderTasks, resetTask, completeTask } = useTasks();
   const activeTask = tasks.find((t) => t.id === timer.taskId);
 
   return (
@@ -20,30 +22,44 @@ const Index = () => {
           <p className="text-sm text-muted-foreground">Seize the opportune moment.</p>
         </header>
 
-        {/* Active Timer */}
-        <TimerDisplay
-          timer={timer}
-          task={activeTask}
-          onTogglePause={togglePause}
-          onDismiss={dismissTimer}
-        />
+        <Tabs defaultValue="tasks" className="w-full">
+          <TabsList className="w-full mb-6 rounded-sm">
+            <TabsTrigger value="tasks" className="flex-1 rounded-sm text-sm">Tasks</TabsTrigger>
+            <TabsTrigger value="analytics" className="flex-1 rounded-sm text-sm">Analytics</TabsTrigger>
+          </TabsList>
 
-        {/* Task Input */}
-        <section className="mb-8 mt-10">
-          <TaskForm onAdd={addTask} />
-        </section>
+          <TabsContent value="tasks">
+            {/* Active Timer */}
+            <TimerDisplay
+              timer={timer}
+              task={activeTask}
+              onTogglePause={togglePause}
+              onDismiss={dismissTimer}
+              onComplete={completeTask}
+            />
 
-        {/* Task List */}
-        <section>
-          <TaskList
-            tasks={tasks}
-            activeTaskId={timer.taskId}
-            onStart={startTask}
-            onDelete={deleteTask}
-            onReset={resetTask}
-            onReorder={reorderTasks}
-          />
-        </section>
+            {/* Task Input */}
+            <section className="mb-8 mt-10">
+              <TaskForm onAdd={addTask} />
+            </section>
+
+            {/* Task List */}
+            <section>
+              <TaskList
+                tasks={tasks}
+                activeTaskId={timer.taskId}
+                onStart={startTask}
+                onDelete={deleteTask}
+                onReset={resetTask}
+                onReorder={reorderTasks}
+              />
+            </section>
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <Analytics tasks={tasks} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

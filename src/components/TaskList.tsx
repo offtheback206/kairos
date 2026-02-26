@@ -1,5 +1,6 @@
-import { Play, Trash2, CheckCircle2, Clock, GripVertical, RotateCcw, CalendarDays } from "lucide-react";
+import { Play, Trash2, CheckCircle2, Clock, GripVertical, RotateCcw, CalendarDays, StickyNote } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import type { Task } from "@/hooks/use-tasks";
 import {
   DndContext,
@@ -89,9 +90,23 @@ function SortableTask({
       )}
 
       <div className="flex-1 min-w-0">
-        <p className={`text-sm font-medium truncate ${task.status === "completed" ? "line-through" : ""}`}>
-          {task.name}
-        </p>
+        <div className="flex items-center gap-1.5">
+          <p className={`text-sm font-medium truncate ${task.status === "completed" ? "line-through" : ""}`}>
+            {task.name}
+          </p>
+          {task.notes && (
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <StickyNote size={12} strokeWidth={1.5} className="text-primary/60 shrink-0" />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs text-xs">
+                  {task.notes}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
         <div className="flex gap-3 mt-0.5">
           {task.plannedDate && (
             <span className="text-[11px] text-muted-foreground flex items-center gap-1">
