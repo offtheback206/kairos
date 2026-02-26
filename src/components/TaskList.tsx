@@ -17,6 +17,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { DeltaBar } from "@/components/DeltaBar";
 
 interface TaskListProps {
   tasks: Task[];
@@ -59,15 +60,17 @@ function SortableTask({
     opacity: isDragging ? 0.5 : 1,
   };
 
+  const isActive = task.id === activeTaskId;
+
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-3 rounded-lg px-4 py-3 transition-colors ${
+      className={`flex items-center gap-3 rounded-sm px-4 py-3 transition-all ${
         task.status === "completed"
           ? "bg-card/50 opacity-60"
-          : task.id === activeTaskId
-          ? "bg-primary/10 border border-primary/20"
+          : isActive
+          ? "bg-primary/10 border border-primary/30 kairos-glow"
           : "bg-card border border-border"
       }`}
     >
@@ -76,13 +79,13 @@ function SortableTask({
         {...attributes}
         {...listeners}
       >
-        <GripVertical size={16} />
+        <GripVertical size={16} strokeWidth={1.5} />
       </button>
 
       {task.status === "completed" ? (
-        <CheckCircle2 size={18} className="text-primary shrink-0" />
+        <CheckCircle2 size={18} strokeWidth={1.5} className="text-primary shrink-0" />
       ) : (
-        <Clock size={18} className="text-muted-foreground shrink-0" />
+        <Clock size={18} strokeWidth={1.5} className="text-muted-foreground shrink-0" />
       )}
 
       <div className="flex-1 min-w-0">
@@ -92,17 +95,21 @@ function SortableTask({
         <div className="flex gap-3 mt-0.5">
           {task.plannedDate && (
             <span className="text-[11px] text-muted-foreground flex items-center gap-1">
-              <CalendarDays size={10} />
+              <CalendarDays size={10} strokeWidth={1.5} />
               Plan: {task.plannedDate}
             </span>
           )}
           {task.completedDate && (
             <span className="text-[11px] text-primary/70 flex items-center gap-1">
-              <CheckCircle2 size={10} />
+              <CheckCircle2 size={10} strokeWidth={1.5} />
               Done: {task.completedDate}
             </span>
           )}
         </div>
+        {/* Delta bar: show for completed tasks */}
+        {task.status === "completed" && task.actualMinutes != null && (
+          <DeltaBar estimated={task.durationMinutes} actual={task.actualMinutes} />
+        )}
       </div>
 
       <span className="text-xs text-muted-foreground tabular-nums shrink-0">
@@ -113,30 +120,30 @@ function SortableTask({
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-primary"
+          className="h-8 w-8 rounded-sm text-muted-foreground hover:text-primary"
           onClick={() => onReset(task.id)}
           title="Reset task"
         >
-          <RotateCcw size={14} />
+          <RotateCcw size={14} strokeWidth={1.5} />
         </Button>
       ) : (
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-primary hover:text-primary"
+          className="h-8 w-8 rounded-sm text-primary hover:text-primary"
           onClick={() => onStart(task.id)}
         >
-          <Play size={14} />
+          <Play size={14} strokeWidth={1.5} />
         </Button>
       )}
 
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+        className="h-8 w-8 rounded-sm text-muted-foreground hover:text-destructive"
         onClick={() => onDelete(task.id)}
       >
-        <Trash2 size={14} />
+        <Trash2 size={14} strokeWidth={1.5} />
       </Button>
     </div>
   );
@@ -151,7 +158,7 @@ export function TaskList({ tasks, activeTaskId, onStart, onDelete, onReset, onRe
   if (tasks.length === 0) {
     return (
       <div className="text-center py-16 text-muted-foreground">
-        <Clock className="mx-auto mb-3 opacity-40" size={40} />
+        <Clock className="mx-auto mb-3 opacity-40" size={40} strokeWidth={1.5} />
         <p className="text-sm">No tasks yet. Add one above to get started.</p>
       </div>
     );

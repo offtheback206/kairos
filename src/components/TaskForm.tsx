@@ -39,7 +39,7 @@ export function TaskForm({ onAdd }: TaskFormProps) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="What are you working on?"
-            className="bg-card border-border"
+            className="bg-card border-border rounded-sm"
           />
         </div>
         <div className="w-24">
@@ -50,13 +50,13 @@ export function TaskForm({ onAdd }: TaskFormProps) {
             value={duration}
             onChange={(e) => setDuration(e.target.value)}
             placeholder="30"
-            className="bg-card border-border"
+            className="bg-card border-border rounded-sm"
           />
         </div>
         <div className="w-28">
           <label className="text-xs text-muted-foreground mb-1.5 block">Unit</label>
           <Select value={unit} onValueChange={(v) => setUnit(v as "minutes" | "hours")}>
-            <SelectTrigger className="bg-card border-border">
+            <SelectTrigger className="bg-card border-border rounded-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -74,11 +74,11 @@ export function TaskForm({ onAdd }: TaskFormProps) {
               <Button
                 variant="outline"
                 className={cn(
-                  "w-[180px] justify-start text-left font-normal bg-card border-border",
+                  "w-[180px] justify-start text-left font-normal bg-card border-border rounded-sm",
                   !plannedDate && "text-muted-foreground"
                 )}
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
+                <CalendarIcon className="mr-2 h-4 w-4" strokeWidth={1.5} />
                 {plannedDate ? format(plannedDate, "MMM d, yyyy") : "Optional"}
               </Button>
             </PopoverTrigger>
@@ -93,8 +93,8 @@ export function TaskForm({ onAdd }: TaskFormProps) {
             </PopoverContent>
           </Popover>
         </div>
-        <Button type="submit" size="default" className="shrink-0">
-          <Plus className="mr-1" size={16} />
+        <Button type="submit" size="default" className="shrink-0 rounded-sm">
+          <Plus className="mr-1" size={16} strokeWidth={1.5} />
           Add Task
         </Button>
       </div>

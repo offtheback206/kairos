@@ -21,7 +21,6 @@ export function TimerDisplay({ timer, task, onTogglePause, onDismiss }: TimerDis
   const progress = timer.totalSeconds > 0 ? timer.remainingSeconds / timer.totalSeconds : 0;
   const isAlert = timer.isComplete;
 
-  // Show toast when timer completes
   useEffect(() => {
     if (isAlert) {
       toast({
@@ -37,15 +36,18 @@ export function TimerDisplay({ timer, task, onTogglePause, onDismiss }: TimerDis
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference * (1 - progress);
 
-  // Green → Yellow → Orange → Red as time runs down
+  // Amber → Red as time runs down
   function getRingColor(p: number) {
-    if (isAlert) return "hsl(0, 55%, 48%)";
-    const hue = Math.round(p * 120); // 120=green, 0=red
-    return `hsl(${hue}, 65%, 48%)`;
+    if (isAlert) return "hsl(0, 84%, 60%)"; // destructive red
+    if (p > 0.5) return "hsl(38, 92%, 50%)"; // amber
+    if (p > 0.25) return "hsl(25, 90%, 50%)"; // orange
+    return "hsl(10, 85%, 50%)"; // red-orange
   }
 
   return (
-    <div className={`flex flex-col items-center py-8 transition-colors duration-700 ${isAlert ? "text-destructive" : ""}`}>
+    <div className={`flex flex-col items-center py-8 transition-colors duration-700 ${
+      isAlert ? "kairos-alert-glow rounded-sm" : "kairos-glow-strong rounded-sm"
+    }`}>
       {/* Progress ring */}
       <div className="relative w-96 h-96 mb-6">
         <svg className="w-full h-full -rotate-90" viewBox="0 0 400 400">
@@ -71,14 +73,14 @@ export function TimerDisplay({ timer, task, onTogglePause, onDismiss }: TimerDis
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-5xl font-mono font-bold tabular-nums">
+          <span className={`text-5xl font-mono font-bold tabular-nums ${isAlert ? "text-destructive" : "text-primary"}`}>
             {formatTime(timer.remainingSeconds)}
           </span>
           {timer.isPaused && !isAlert && (
             <span className="text-xs text-muted-foreground mt-1">Paused</span>
           )}
           {isAlert && (
-            <span className="text-xs font-medium mt-1">Complete</span>
+            <span className="text-xs font-semibold mt-1 text-destructive">Overtime</span>
           )}
         </div>
       </div>
@@ -89,13 +91,13 @@ export function TimerDisplay({ timer, task, onTogglePause, onDismiss }: TimerDis
       {/* Controls */}
       <div className="flex gap-2">
         {!isAlert && (
-          <Button variant="outline" size="sm" onClick={onTogglePause}>
-            {timer.isPaused ? <Play size={14} className="mr-1" /> : <Pause size={14} className="mr-1" />}
+          <Button variant="outline" size="sm" className="rounded-sm" onClick={onTogglePause}>
+            {timer.isPaused ? <Play size={14} strokeWidth={1.5} className="mr-1" /> : <Pause size={14} strokeWidth={1.5} className="mr-1" />}
             {timer.isPaused ? "Resume" : "Pause"}
           </Button>
         )}
-        <Button variant="ghost" size="sm" onClick={onDismiss}>
-          <X size={14} className="mr-1" />
+        <Button variant="ghost" size="sm" className="rounded-sm" onClick={onDismiss}>
+          <X size={14} strokeWidth={1.5} className="mr-1" />
           Dismiss
         </Button>
       </div>

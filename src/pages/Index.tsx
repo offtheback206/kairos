@@ -2,7 +2,7 @@ import { useTasks } from "@/hooks/use-tasks";
 import { TaskForm } from "@/components/TaskForm";
 import { TaskList } from "@/components/TaskList";
 import { TimerDisplay } from "@/components/TimerDisplay";
-import { Clock } from "lucide-react";
+import kairosLogo from "@/assets/Kairos.png";
 
 const Index = () => {
   const { tasks, timer, addTask, deleteTask, startTask, togglePause, dismissTimer, reorderTasks, resetTask } = useTasks();
@@ -13,11 +13,11 @@ const Index = () => {
       <div className="mx-auto max-w-xl px-4 py-12">
         {/* Header */}
         <header className="mb-10">
-          <div className="flex items-center gap-2 mb-1">
-            <Clock size={20} className="text-primary" />
-            <h1 className="text-lg font-semibold tracking-tight">Time-Boxed Planner</h1>
+          <div className="flex items-center gap-3 mb-1">
+            <img src={kairosLogo} alt="Kairos" className="h-9 w-9 object-contain" />
+            <h1 className="text-lg font-semibold tracking-tight">Kairos</h1>
           </div>
-          <p className="text-xs text-muted-foreground">Focus on one task at a time.</p>
+          <p className="text-xs text-muted-foreground">Seize the opportune moment.</p>
         </header>
 
         {/* Active Timer */}
