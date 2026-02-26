@@ -13,11 +13,11 @@ const Index = () => {
       <div className="mx-auto max-w-xl px-4 py-12">
         {/* Header */}
         <header className="mb-10">
-          <div className="flex items-center gap-3 mb-1">
-            <img src={kairosLogo} alt="Kairos" className="h-9 w-9 object-contain" />
-            <h1 className="text-lg font-semibold tracking-tight">Kairos</h1>
+          <div className="flex items-center gap-4 mb-2">
+            <img src={kairosLogo} alt="Kairos" className="h-14 w-14 object-contain" />
+            <h1 className="text-3xl font-bold tracking-tight">Kairos</h1>
           </div>
-          <p className="text-xs text-muted-foreground">Seize the opportune moment.</p>
+          <p className="text-sm text-muted-foreground">Seize the opportune moment.</p>
         </header>
 
         {/* Active Timer */}
@@ -29,7 +29,7 @@ const Index = () => {
         />
 
         {/* Task Input */}
-        <section className="mb-8">
+        <section className="mb-8 mt-10">
           <TaskForm onAdd={addTask} />
         </section>
 
