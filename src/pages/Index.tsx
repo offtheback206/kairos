@@ -17,7 +17,7 @@ const Index = () => {
         <header className="mb-10">
           <div className="flex items-center gap-4 mb-2">
             <img src={kairosLogo} alt="Kairos" className="h-14 w-14 object-contain" />
-            <h1 className="text-3xl font-bold tracking-tight">Kairos</h1>
+            <h1 className="text-4xl font-bold tracking-tight">Kairos</h1>
           </div>
           <p className="text-sm text-muted-foreground">Seize the opportune moment.</p>
         </header>
