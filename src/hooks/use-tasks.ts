@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { format } from "date-fns";
 
 export interface Task {
   id: string;
@@ -7,7 +8,9 @@ export interface Task {
   status: "pending" | "active" | "completed";
   plannedDate: string | null;
   completedDate: string | null;
-  actualMinutes: number | null; // actual time spent
+  actualMinutes: number | null;
+  notes: string | null;
+  overtimeSeconds: number | null;
 }
 
 export interface TimerState {
@@ -16,6 +19,7 @@ export interface TimerState {
   totalSeconds: number;
   isPaused: boolean;
   isComplete: boolean;
+  overtimeSeconds: number;
 }
 
 const TASKS_KEY = "timeboxed-tasks";
@@ -33,9 +37,9 @@ function loadTasks(): Task[] {
 function loadTimer(): TimerState {
   try {
     const raw = localStorage.getItem(TIMER_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) return { overtimeSeconds: 0, ...JSON.parse(raw) };
   } catch {}
-  return { taskId: null, remainingSeconds: 0, totalSeconds: 0, isPaused: false, isComplete: false };
+  return { taskId: null, remainingSeconds: 0, totalSeconds: 0, isPaused: false, isComplete: false, overtimeSeconds: 0 };
 }
 
 export function useTasks() {
@@ -53,20 +57,30 @@ export function useTasks() {
     localStorage.setItem(TIMER_KEY, JSON.stringify(timer));
   }, [timer]);
 
-  // Countdown logic
+  // Countdown + overtime logic
   useEffect(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
 
-    if (timer.taskId && !timer.isPaused && !timer.isComplete) {
-      intervalRef.current = setInterval(() => {
-        setTimer((prev) => {
-          if (prev.remainingSeconds <= 1) {
-            // Timer complete
-            return { ...prev, remainingSeconds: 0, isComplete: true };
-          }
-          return { ...prev, remainingSeconds: prev.remainingSeconds - 1 };
-        });
-      }, 1000);
+    if (timer.taskId && !timer.isPaused) {
+      if (!timer.isComplete) {
+        // Count DOWN
+        intervalRef.current = setInterval(() => {
+          setTimer((prev) => {
+            if (prev.remainingSeconds <= 1) {
+              return { ...prev, remainingSeconds: 0, isComplete: true };
+            }
+            return { ...prev, remainingSeconds: prev.remainingSeconds - 1 };
+          });
+        }, 1000);
+      } else {
+        // Count UP (overtime)
+        intervalRef.current = setInterval(() => {
+          setTimer((prev) => ({
+            ...prev,
+            overtimeSeconds: prev.overtimeSeconds + 1,
+          }));
+        }, 1000);
+      }
     }
 
     return () => {
@@ -74,34 +88,24 @@ export function useTasks() {
     };
   }, [timer.taskId, timer.isPaused, timer.isComplete]);
 
-  // Mark task completed when timer finishes
-  useEffect(() => {
-    if (timer.isComplete && timer.taskId) {
-      const today = new Date().toISOString().split("T")[0];
-      const elapsedSeconds = timer.totalSeconds - timer.remainingSeconds;
-      const actualMin = Math.round(elapsedSeconds / 60);
-      setTasks((prev) =>
-        prev.map((t) => (t.id === timer.taskId ? { ...t, status: "completed", completedDate: today, actualMinutes: actualMin } : t))
-      );
-    }
-  }, [timer.isComplete, timer.taskId]);
-
-  const addTask = useCallback((name: string, durationMinutes: number, plannedDate: string | null) => {
+  const addTask = useCallback((name: string, durationMinutes: number, plannedDate: string | null, notes: string | null) => {
     const newTask: Task = {
       id: crypto.randomUUID(),
       name,
       durationMinutes,
       status: "pending",
-      plannedDate,
+      plannedDate: plannedDate ?? format(new Date(), "yyyy-MM-dd"),
       completedDate: null,
       actualMinutes: null,
+      notes: notes || null,
+      overtimeSeconds: null,
     };
     setTasks((prev) => [...prev, newTask]);
   }, []);
 
   const deleteTask = useCallback((id: string) => {
     setTasks((prev) => prev.filter((t) => t.id !== id));
-    setTimer((prev) => (prev.taskId === id ? { taskId: null, remainingSeconds: 0, totalSeconds: 0, isPaused: false, isComplete: false } : prev));
+    setTimer((prev) => (prev.taskId === id ? { taskId: null, remainingSeconds: 0, totalSeconds: 0, isPaused: false, isComplete: false, overtimeSeconds: 0 } : prev));
   }, []);
 
   const startTask = useCallback((id: string) => {
@@ -115,15 +119,31 @@ export function useTasks() {
     const task = tasks.find((t) => t.id === id);
     if (!task) return;
     const totalSeconds = task.durationMinutes * 60;
-    setTimer({ taskId: id, remainingSeconds: totalSeconds, totalSeconds, isPaused: false, isComplete: false });
+    setTimer({ taskId: id, remainingSeconds: totalSeconds, totalSeconds, isPaused: false, isComplete: false, overtimeSeconds: 0 });
   }, [tasks]);
+
+  const completeTask = useCallback(() => {
+    if (!timer.taskId) return;
+    const today = format(new Date(), "yyyy-MM-dd");
+    const actualMin = Math.round((timer.totalSeconds + timer.overtimeSeconds) / 60);
+    const ot = timer.overtimeSeconds;
+    const taskId = timer.taskId;
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === taskId
+          ? { ...t, status: "completed" as const, completedDate: today, actualMinutes: actualMin, overtimeSeconds: ot }
+          : t
+      )
+    );
+    setTimer({ taskId: null, remainingSeconds: 0, totalSeconds: 0, isPaused: false, isComplete: false, overtimeSeconds: 0 });
+  }, [timer.taskId, timer.totalSeconds, timer.overtimeSeconds]);
 
   const togglePause = useCallback(() => {
     setTimer((prev) => ({ ...prev, isPaused: !prev.isPaused }));
   }, []);
 
   const dismissTimer = useCallback(() => {
-    setTimer({ taskId: null, remainingSeconds: 0, totalSeconds: 0, isPaused: false, isComplete: false });
+    setTimer({ taskId: null, remainingSeconds: 0, totalSeconds: 0, isPaused: false, isComplete: false, overtimeSeconds: 0 });
   }, []);
 
   const reorderTasks = useCallback((activeId: string, overId: string) => {
@@ -139,8 +159,8 @@ export function useTasks() {
   }, []);
 
   const resetTask = useCallback((id: string) => {
-    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status: "pending" as const, completedDate: null, actualMinutes: null } : t)));
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status: "pending" as const, completedDate: null, actualMinutes: null, overtimeSeconds: null } : t)));
   }, []);
 
-  return { tasks, timer, addTask, deleteTask, startTask, togglePause, dismissTimer, reorderTasks, resetTask };
+  return { tasks, timer, addTask, deleteTask, startTask, togglePause, dismissTimer, reorderTasks, resetTask, completeTask };
 }

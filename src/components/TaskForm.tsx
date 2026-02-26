@@ -1,22 +1,26 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { Plus, CalendarIcon } from "lucide-react";
+import { Plus, CalendarIcon, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 
 interface TaskFormProps {
-  onAdd: (name: string, durationMinutes: number, plannedDate: string | null) => void;
+  onAdd: (name: string, durationMinutes: number, plannedDate: string | null, notes: string | null) => void;
 }
 
 export function TaskForm({ onAdd }: TaskFormProps) {
   const [name, setName] = useState("");
   const [duration, setDuration] = useState("");
   const [unit, setUnit] = useState<"minutes" | "hours">("minutes");
-  const [plannedDate, setPlannedDate] = useState<Date | undefined>(undefined);
+  const [plannedDate, setPlannedDate] = useState<Date | undefined>(new Date());
+  const [notes, setNotes] = useState("");
+  const [notesOpen, setNotesOpen] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,10 +28,12 @@ export function TaskForm({ onAdd }: TaskFormProps) {
     if (!name.trim() || isNaN(dur) || dur <= 0) return;
     const minutes = unit === "hours" ? dur * 60 : dur;
     const dateStr = plannedDate ? format(plannedDate, "yyyy-MM-dd") : null;
-    onAdd(name.trim(), minutes, dateStr);
+    onAdd(name.trim(), minutes, dateStr, notes.trim() || null);
     setName("");
     setDuration("");
-    setPlannedDate(undefined);
+    setNotes("");
+    setNotesOpen(false);
+    setPlannedDate(new Date());
   };
 
   return (
@@ -66,6 +72,25 @@ export function TaskForm({ onAdd }: TaskFormProps) {
           </Select>
         </div>
       </div>
+
+      {/* Focus Notes (collapsible) */}
+      <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
+        <CollapsibleTrigger asChild>
+          <button type="button" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+            <ChevronDown size={12} strokeWidth={1.5} className={cn("transition-transform", notesOpen && "rotate-180")} />
+            Focus Notes
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="mt-2">
+          <Textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="What should you focus on? Key objectives, blockers..."
+            className="bg-card border-border rounded-sm min-h-[60px] text-sm"
+          />
+        </CollapsibleContent>
+      </Collapsible>
+
       <div className="flex gap-3 items-end">
         <div>
           <label className="text-xs text-muted-foreground mb-1.5 block">Planned date</label>
@@ -79,7 +104,7 @@ export function TaskForm({ onAdd }: TaskFormProps) {
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" strokeWidth={1.5} />
-                {plannedDate ? format(plannedDate, "MMM d, yyyy") : "Optional"}
+                {plannedDate ? format(plannedDate, "MMM d, yyyy") : "Today"}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
