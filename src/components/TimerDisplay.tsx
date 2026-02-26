@@ -33,32 +33,37 @@ export function TimerDisplay({ timer, task, onTogglePause, onDismiss }: TimerDis
 
   if (!timer.taskId) return null;
 
-  const radius = 80;
+  const radius = 155;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference * (1 - progress);
 
-  const ringColor = isAlert ? "hsl(var(--destructive))" : "hsl(var(--primary))";
+  // Green → Yellow → Orange → Red as time runs down
+  function getRingColor(p: number) {
+    if (isAlert) return "hsl(0, 55%, 48%)";
+    const hue = Math.round(p * 120); // 120=green, 0=red
+    return `hsl(${hue}, 65%, 48%)`;
+  }
 
   return (
     <div className={`flex flex-col items-center py-8 transition-colors duration-700 ${isAlert ? "text-destructive" : ""}`}>
       {/* Progress ring */}
-      <div className="relative w-48 h-48 mb-4">
-        <svg className="w-full h-full -rotate-90" viewBox="0 0 200 200">
+      <div className="relative w-96 h-96 mb-6">
+        <svg className="w-full h-full -rotate-90" viewBox="0 0 400 400">
           <circle
-            cx="100"
-            cy="100"
+            cx="200"
+            cy="200"
             r={radius}
             fill="none"
             stroke="hsl(var(--border))"
-            strokeWidth="6"
+            strokeWidth="8"
           />
           <circle
-            cx="100"
-            cy="100"
+            cx="200"
+            cy="200"
             r={radius}
             fill="none"
-            stroke={ringColor}
-            strokeWidth="6"
+            stroke={getRingColor(progress)}
+            strokeWidth="8"
             strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={strokeDashoffset}
@@ -66,7 +71,7 @@ export function TimerDisplay({ timer, task, onTogglePause, onDismiss }: TimerDis
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-3xl font-mono font-bold tabular-nums">
+          <span className="text-5xl font-mono font-bold tabular-nums">
             {formatTime(timer.remainingSeconds)}
           </span>
           {timer.isPaused && !isAlert && (
