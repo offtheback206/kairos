@@ -19,7 +19,7 @@ const Index = () => {
             <img src={kairosLogo} alt="Kairos" className="h-14 w-14 object-contain" />
             <h1 className="text-4xl font-bold tracking-tight">Kairos</h1>
           </div>
-          <p className="text-sm text-muted-foreground">Seize the opportune moment.</p>
+          <p className="text-base text-secondary-foreground">Carpe Diem </p>
         </header>
 
         <Tabs defaultValue="tasks" className="w-full">
@@ -35,8 +35,8 @@ const Index = () => {
               task={activeTask}
               onTogglePause={togglePause}
               onDismiss={dismissTimer}
-              onComplete={completeTask}
-            />
+              onComplete={completeTask} />
+
 
             {/* Task Input */}
             <section className="mb-8 mt-10">
@@ -51,8 +51,8 @@ const Index = () => {
                 onStart={startTask}
                 onDelete={deleteTask}
                 onDuplicate={duplicateTask}
-                onReorder={reorderTasks}
-              />
+                onReorder={reorderTasks} />
+
             </section>
           </TabsContent>
 
@@ -61,8 +61,8 @@ const Index = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default Index;
