@@ -5,7 +5,7 @@ import { TimerDisplay } from "@/components/TimerDisplay";
 import { Clock } from "lucide-react";
 
 const Index = () => {
-  const { tasks, timer, addTask, deleteTask, startTask, togglePause, dismissTimer, reorderTasks } = useTasks();
+  const { tasks, timer, addTask, deleteTask, startTask, togglePause, dismissTimer, reorderTasks, resetTask } = useTasks();
   const activeTask = tasks.find((t) => t.id === timer.taskId);
 
   return (
@@ -40,6 +40,7 @@ const Index = () => {
             activeTaskId={timer.taskId}
             onStart={startTask}
             onDelete={deleteTask}
+            onReset={resetTask}
             onReorder={reorderTasks}
           />
         </section>
