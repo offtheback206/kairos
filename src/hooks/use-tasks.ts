@@ -129,5 +129,9 @@ export function useTasks() {
     });
   }, []);
 
-  return { tasks, timer, addTask, deleteTask, startTask, togglePause, dismissTimer, reorderTasks };
+  const resetTask = useCallback((id: string) => {
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status: "pending" as const } : t)));
+  }, []);
+
+  return { tasks, timer, addTask, deleteTask, startTask, togglePause, dismissTimer, reorderTasks, resetTask };
 }

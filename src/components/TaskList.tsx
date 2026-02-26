@@ -1,4 +1,4 @@
-import { Play, Trash2, CheckCircle2, Clock, GripVertical } from "lucide-react";
+import { Play, Trash2, CheckCircle2, Clock, GripVertical, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Task } from "@/hooks/use-tasks";
 import {
@@ -23,6 +23,7 @@ interface TaskListProps {
   activeTaskId: string | null;
   onStart: (id: string) => void;
   onDelete: (id: string) => void;
+  onReset: (id: string) => void;
   onReorder: (activeId: string, overId: string) => void;
 }
 
@@ -40,11 +41,13 @@ function SortableTask({
   activeTaskId,
   onStart,
   onDelete,
+  onReset,
 }: {
   task: Task;
   activeTaskId: string | null;
   onStart: (id: string) => void;
   onDelete: (id: string) => void;
+  onReset: (id: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
@@ -92,7 +95,17 @@ function SortableTask({
         {formatDuration(task.durationMinutes)}
       </span>
 
-      {task.status !== "completed" && (
+      {task.status === "completed" ? (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-muted-foreground hover:text-primary"
+          onClick={() => onReset(task.id)}
+          title="Reset task"
+        >
+          <RotateCcw size={14} />
+        </Button>
+      ) : (
         <Button
           variant="ghost"
           size="icon"
@@ -115,7 +128,7 @@ function SortableTask({
   );
 }
 
-export function TaskList({ tasks, activeTaskId, onStart, onDelete, onReorder }: TaskListProps) {
+export function TaskList({ tasks, activeTaskId, onStart, onDelete, onReset, onReorder }: TaskListProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -148,6 +161,7 @@ export function TaskList({ tasks, activeTaskId, onStart, onDelete, onReorder }: 
               activeTaskId={activeTaskId}
               onStart={onStart}
               onDelete={onDelete}
+              onReset={onReset}
             />
           ))}
         </div>
