@@ -5,6 +5,8 @@ export interface Task {
   name: string;
   durationMinutes: number;
   status: "pending" | "active" | "completed";
+  plannedDate: string | null; // ISO date string (YYYY-MM-DD)
+  completedDate: string | null; // ISO date string (YYYY-MM-DD)
 }
 
 export interface TimerState {
@@ -74,18 +76,21 @@ export function useTasks() {
   // Mark task completed when timer finishes
   useEffect(() => {
     if (timer.isComplete && timer.taskId) {
+      const today = new Date().toISOString().split("T")[0];
       setTasks((prev) =>
-        prev.map((t) => (t.id === timer.taskId ? { ...t, status: "completed" } : t))
+        prev.map((t) => (t.id === timer.taskId ? { ...t, status: "completed", completedDate: today } : t))
       );
     }
   }, [timer.isComplete, timer.taskId]);
 
-  const addTask = useCallback((name: string, durationMinutes: number) => {
+  const addTask = useCallback((name: string, durationMinutes: number, plannedDate: string | null) => {
     const newTask: Task = {
       id: crypto.randomUUID(),
       name,
       durationMinutes,
       status: "pending",
+      plannedDate,
+      completedDate: null,
     };
     setTasks((prev) => [...prev, newTask]);
   }, []);
@@ -130,7 +135,7 @@ export function useTasks() {
   }, []);
 
   const resetTask = useCallback((id: string) => {
-    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status: "pending" as const } : t)));
+    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status: "pending" as const, completedDate: null } : t)));
   }, []);
 
   return { tasks, timer, addTask, deleteTask, startTask, togglePause, dismissTimer, reorderTasks, resetTask };

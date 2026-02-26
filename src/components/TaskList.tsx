@@ -1,4 +1,4 @@
-import { Play, Trash2, CheckCircle2, Clock, GripVertical, RotateCcw } from "lucide-react";
+import { Play, Trash2, CheckCircle2, Clock, GripVertical, RotateCcw, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Task } from "@/hooks/use-tasks";
 import {
@@ -89,6 +89,20 @@ function SortableTask({
         <p className={`text-sm font-medium truncate ${task.status === "completed" ? "line-through" : ""}`}>
           {task.name}
         </p>
+        <div className="flex gap-3 mt-0.5">
+          {task.plannedDate && (
+            <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+              <CalendarDays size={10} />
+              Plan: {task.plannedDate}
+            </span>
+          )}
+          {task.completedDate && (
+            <span className="text-[11px] text-primary/70 flex items-center gap-1">
+              <CheckCircle2 size={10} />
+              Done: {task.completedDate}
+            </span>
+          )}
+        </div>
       </div>
 
       <span className="text-xs text-muted-foreground tabular-nums shrink-0">
