@@ -1,4 +1,6 @@
-import { Play, Trash2, CheckCircle2, Clock, GripVertical, RotateCcw, CalendarDays, StickyNote } from "lucide-react";
+import { useState } from "react";
+import { format } from "date-fns";
+import { Play, Trash2, CheckCircle2, Clock, GripVertical, Copy, CalendarDays, StickyNote, CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import type { Task } from "@/hooks/use-tasks";
@@ -25,7 +27,7 @@ interface TaskListProps {
   activeTaskId: string | null;
   onStart: (id: string) => void;
   onDelete: (id: string) => void;
-  onReset: (id: string) => void;
+  onDuplicate: (id: string, plannedDate: string) => void;
   onReorder: (activeId: string, overId: string) => void;
 }
 
@@ -43,14 +45,16 @@ function SortableTask({
   activeTaskId,
   onStart,
   onDelete,
-  onReset,
+  onDuplicate,
 }: {
   task: Task;
   activeTaskId: string | null;
   onStart: (id: string) => void;
   onDelete: (id: string) => void;
-  onReset: (id: string) => void;
+  onDuplicate: (id: string, plannedDate: string) => void;
 }) {
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [dupDate, setDupDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
   });
@@ -67,7 +71,7 @@ function SortableTask({
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-3 rounded-sm px-4 py-3 transition-all ${
+      className={`relative flex items-center gap-3 rounded-sm px-4 py-3 transition-all ${
         task.status === "completed"
           ? "bg-card/50 opacity-60"
           : isActive
@@ -131,17 +135,20 @@ function SortableTask({
         {formatDuration(task.durationMinutes)}
       </span>
 
-      {task.status === "completed" ? (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 rounded-sm text-muted-foreground hover:text-primary"
-          onClick={() => onReset(task.id)}
-          title="Reset task"
-        >
-          <RotateCcw size={14} strokeWidth={1.5} />
-        </Button>
-      ) : (
+      {task.status !== "pending" && (
+        <>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 rounded-sm text-muted-foreground hover:text-primary"
+            onClick={() => setShowDatePicker((v) => !v)}
+            title="Duplicate task"
+          >
+            <Copy size={14} strokeWidth={1.5} />
+          </Button>
+        </>
+      )}
+      {task.status === "pending" && (
         <Button
           variant="ghost"
           size="icon"
@@ -150,6 +157,29 @@ function SortableTask({
         >
           <Play size={14} strokeWidth={1.5} />
         </Button>
+      )}
+
+      {/* Inline date picker for duplication */}
+      {showDatePicker && (
+        <div className="absolute right-0 top-full mt-1 z-10 bg-card border border-border rounded-sm p-3 shadow-lg flex items-center gap-2">
+          <CalendarIcon size={12} strokeWidth={1.5} className="text-muted-foreground" />
+          <input
+            type="date"
+            value={dupDate}
+            onChange={(e) => setDupDate(e.target.value)}
+            className="bg-background border border-border rounded-sm text-xs px-2 py-1 text-foreground"
+          />
+          <Button
+            size="sm"
+            className="rounded-sm text-xs h-7 px-2"
+            onClick={() => {
+              onDuplicate(task.id, dupDate);
+              setShowDatePicker(false);
+            }}
+          >
+            Duplicate
+          </Button>
+        </div>
       )}
 
       {task.status === "pending" && (
@@ -166,7 +196,7 @@ function SortableTask({
   );
 }
 
-export function TaskList({ tasks, activeTaskId, onStart, onDelete, onReset, onReorder }: TaskListProps) {
+export function TaskList({ tasks, activeTaskId, onStart, onDelete, onDuplicate, onReorder }: TaskListProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -199,7 +229,7 @@ export function TaskList({ tasks, activeTaskId, onStart, onDelete, onReset, onRe
               activeTaskId={activeTaskId}
               onStart={onStart}
               onDelete={onDelete}
-              onReset={onReset}
+              onDuplicate={onDuplicate}
             />
           ))}
         </div>

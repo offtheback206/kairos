@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import kairosLogo from "@/assets/Kairos.png";
 
 const Index = () => {
-  const { tasks, timer, addTask, deleteTask, startTask, togglePause, dismissTimer, reorderTasks, resetTask, completeTask } = useTasks();
+  const { tasks, timer, addTask, deleteTask, startTask, togglePause, dismissTimer, reorderTasks, duplicateTask, completeTask } = useTasks();
   const activeTask = tasks.find((t) => t.id === timer.taskId);
 
   return (
@@ -50,7 +50,7 @@ const Index = () => {
                 activeTaskId={timer.taskId}
                 onStart={startTask}
                 onDelete={deleteTask}
-                onReset={resetTask}
+                onDuplicate={duplicateTask}
                 onReorder={reorderTasks}
               />
             </section>
