@@ -39,9 +39,9 @@ export function TimerDisplay({ timer, task, onTogglePause, onDismiss, onComplete
 
   function getRingColor(p: number) {
     if (isOvertime) return "hsl(0, 84%, 60%)";
-    if (p > 0.5) return "hsl(38, 92%, 50%)";
-    if (p > 0.25) return "hsl(25, 90%, 50%)";
-    return "hsl(10, 85%, 50%)";
+    if (p > 0.66) return "hsl(142, 71%, 45%)";
+    if (p > 0.33) return "hsl(48, 96%, 53%)";
+    return "hsl(0, 84%, 60%)";
   }
 
   return (

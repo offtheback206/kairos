@@ -177,5 +177,11 @@ export function useTasks() {
     });
   }, []);
 
-  return { tasks, timer, addTask, deleteTask, startTask, togglePause, dismissTimer, reorderTasks, duplicateTask, completeTask };
+  const updateTask = useCallback((id: string, updates: Partial<Pick<Task, "name" | "durationMinutes" | "plannedDate" | "notes">>) => {
+    setTasks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, ...updates } : t))
+    );
+  }, []);
+
+  return { tasks, timer, addTask, deleteTask, startTask, togglePause, dismissTimer, reorderTasks, duplicateTask, completeTask, updateTask };
 }
