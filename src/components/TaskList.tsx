@@ -32,11 +32,11 @@ export function TaskList({ tasks, activeTaskId, onStart, onDelete, onDuplicate, 
   const today = format(new Date(), "yyyy-MM-dd");
 
   const todayTasks = useMemo(
-    () => tasks.filter((t) => t.plannedDate === today || t.plannedDate === null),
+    () => tasks.filter((t) => t.plannedDate === today),
     [tasks, today]
   );
   const futureTasks = useMemo(
-    () => tasks.filter((t) => t.plannedDate !== null && t.plannedDate !== today),
+    () => tasks.filter((t) => t.plannedDate !== today),
     [tasks, today]
   );
 
@@ -105,6 +105,7 @@ export function TaskList({ tasks, activeTaskId, onStart, onDelete, onDuplicate, 
           title="Future Tasks"
           tasks={futureTasks}
           activeTaskId={activeTaskId}
+          isFuture
           onStart={onStart}
           onDelete={onDelete}
           onDuplicate={onDuplicate}

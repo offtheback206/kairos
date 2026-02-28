@@ -21,6 +21,7 @@ function formatDuration(minutes: number) {
 interface SortableTaskProps {
   task: Task;
   activeTaskId: string | null;
+  isFuture?: boolean;
   onStart: (id: string) => void;
   onDelete: (id: string) => void;
   onDuplicate: (id: string, plannedDate: string) => void;
@@ -30,6 +31,7 @@ interface SortableTaskProps {
 export function SortableTask({
   task,
   activeTaskId,
+  isFuture = false,
   onStart,
   onDelete,
   onDuplicate,
@@ -202,7 +204,7 @@ export function SortableTask({
           </Button>
         )}
 
-        {task.status === "pending" && (
+        {task.status === "pending" && !isFuture && (
           <Button
             variant="ghost"
             size="icon"
