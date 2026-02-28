@@ -9,6 +9,7 @@ interface TaskColumnProps {
   title: string;
   tasks: Task[];
   activeTaskId: string | null;
+  isFuture?: boolean;
   onStart: (id: string) => void;
   onDelete: (id: string) => void;
   onDuplicate: (id: string, plannedDate: string) => void;
@@ -20,6 +21,7 @@ export function TaskColumn({
   title,
   tasks,
   activeTaskId,
+  isFuture = false,
   onStart,
   onDelete,
   onDuplicate,
@@ -49,6 +51,7 @@ export function TaskColumn({
                   key={task.id}
                   task={task}
                   activeTaskId={activeTaskId}
+                  isFuture={isFuture}
                   onStart={onStart}
                   onDelete={onDelete}
                   onDuplicate={onDuplicate}
